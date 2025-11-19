@@ -31,6 +31,7 @@ class SudokuGenerator:
         self.removed_cells2 = removed_cells
         self.box_length = int(math.sqrt(row_length))
         self.board = self.board = [[0 for _ in range(9)] for _ in range(9)]
+        self.SolveBoard = self.board = [[0 for _ in range(9)] for _ in range(9)]
         self.SGraph = sudoku_graph(self.box_length)
         self.spots = 0
 
@@ -146,7 +147,12 @@ class SudokuGenerator:
                 self.board[row_start + r][col_start + c] = num[NumOn]
                 NumOn += 1
         
-    
+    def save_board(self):
+        for i, row in enumerate(self.board):
+            for j, num in enumerate(row):
+                self.SolveBoard[i][j] = num
+    def get_solve_board(self):
+        return self.SolveBoard
     '''
     Fills the three boxes along the main diagonal of the board
     These are the boxes which start at (0,0), (3,3), and (6,6)
@@ -222,9 +228,14 @@ class SudokuGenerator:
 	Return: None
     '''
     def remove_cells(self):
+        CBoard = enumerate(self.board)
+        if self.spots < 0:
+            self.spots = self.spots*-1
+            CBoard = enumerate(reversed(self.board))
+            flip = True
         percent =  ((self.removed_cells-10)/((self.row_length**2)-10))*100
         current = percent
-        for i , row in enumerate(self.board):
+        for i , row in CBoard:
             for j, num in enumerate(row):
                 if self.spots == self.removed_cells:
                     return
@@ -237,6 +248,7 @@ class SudokuGenerator:
                         continue
                     current += percent
         if self.spots < self.removed_cells:
+            self.spots = self.spots*-1
             self.remove_cells()
 
 '''
@@ -258,11 +270,9 @@ def generate_sudoku(size, removed):
     sudoku = SudokuGenerator(size, removed)
     sudoku.fill_values()
     board = sudoku.get_board()
-    sudoku.print_board()
-    print()
+    sudoku.save_board()
     sudoku.remove_cells()
     board = sudoku.get_board()
-    sudoku.print_board()
     return board
 
-       
+ 
