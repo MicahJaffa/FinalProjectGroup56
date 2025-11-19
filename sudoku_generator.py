@@ -30,8 +30,8 @@ class SudokuGenerator:
         self.removed_cells = removed_cells
         self.removed_cells2 = removed_cells
         self.box_length = int(math.sqrt(row_length))
-        self.board = self.board = [[0 for _ in range(9)] for _ in range(9)]
-        self.SolveBoard = self.board = [[0 for _ in range(9)] for _ in range(9)]
+        self.board = [[0 for _ in range(9)] for _ in range(9)]
+        self.SolveBoard = [[0 for _ in range(9)] for _ in range(9)]
         self.SGraph = sudoku_graph(self.box_length)
         self.spots = 0
 
@@ -228,28 +228,43 @@ class SudokuGenerator:
 	Return: None
     '''
     def remove_cells(self):
-        CBoard = enumerate(self.board)
-        if self.spots < 0:
-            self.spots = self.spots*-1
-            CBoard = enumerate(reversed(self.board))
-            flip = True
-        percent =  ((self.removed_cells-10)/((self.row_length**2)-10))*100
-        current = percent
-        for i , row in CBoard:
-            for j, num in enumerate(row):
-                if self.spots == self.removed_cells:
-                    return
-                if self.board[i][j] != 0: 
-                    RandPerc = random.randint(1, 100)
-                    if (RandPerc - current) < 0:
-                        self.board[i][j] = 0
-                        self.spots += 1
-                        current = percent
-                        continue
-                    current += percent
-        if self.spots < self.removed_cells:
-            self.spots = self.spots*-1
-            self.remove_cells()
+        AR = int(self.removed_cells/self.row_length)
+        TOTAL = self.removed_cells     
+        count = self.row_length        
+        MAX_VAL = 7                    
+
+        valid = False
+
+        while not valid:
+            raw = []
+            for _ in range(count):
+                raw.append(random.random() * AR)
+            s = sum(raw)
+            scaled = []
+            for x in raw:
+                scaled.append((x / s) * TOTAL)
+            values = []
+            for v in scaled:
+                values.append(int(round(v)))
+            diff = TOTAL - sum(values)
+            for i in range(abs(diff)):
+                if diff > 0:
+                    values[i % count] += 1
+                else:
+                    values[i % count] -= 1
+            valid = True
+            for v in values:
+                if v < 0 or v > MAX_VAL:
+                    valid = False
+                    break
+        for i in range(len(values)):
+            zeros = 0
+            while zeros != values[i]:
+                val = random.randint(0,8)
+                if self.board[i][val] != 0:
+                    self.board[i][val] = 0
+                    zeros += 1
+
 
 '''
 DO NOT CHANGE
