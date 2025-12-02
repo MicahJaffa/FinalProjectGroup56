@@ -1,5 +1,6 @@
 import pygame
 from screen import Board
+import sys
 
 
 WHITE = (255, 255, 255)
@@ -100,7 +101,8 @@ while running:
                 sel = board_obj.selected_cell
                 if sel:
                     r, c = sel
-                    val = board_obj.sketch_board[r][c]
+                    val = board_obj.cells[r][c].sketched_value
+                    board_obj.cells[r][c].sketched_value = 0
                     if val and val in range(1, 10):
                         board_obj.place_number(val)
                         if board_obj.is_full():
@@ -112,7 +114,7 @@ while running:
                 sel = board_obj.selected_cell
                 if sel:
                     r, c = sel
-                    board_obj.sketch_board[r][c] = 0
+                    board_obj.cells[r][c].sketched_value = 0
             elif ev.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
                 r, c = (0, 0) if board_obj.selected_cell is None else board_obj.selected_cell
                 if ev.key == pygame.K_LEFT:
