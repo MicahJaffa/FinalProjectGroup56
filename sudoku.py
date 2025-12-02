@@ -15,7 +15,7 @@ pygame.display.set_caption("Sudoku")
 
 try:
     bg = pygame.image.load("sudoku.png").convert_alpha()
-    bg = pygame.transform.scale(bg, (scr_w, scr_h))
+    bg = pygame.transform.smoothscale(bg, (scr_w, scr_h))
 except:
     bg = None
 
@@ -26,6 +26,7 @@ def txt_mid(surf, txt, box, size=30, col=BLACK):
     r = t.get_rect()
     r.center = box.center
     surf.blit(t, r)
+
 
 scene = "start"
 mode = ""
@@ -40,8 +41,8 @@ while running:
         if ev.type == pygame.MOUSEBUTTONDOWN:
             mx, my = ev.pos
 
-
             if scene == "start":
+                # Difficulty buttons
                 if 43 < mx < 130 and 200 < my < 251:
                     mode = "easy"
                 elif 153 < mx < 231 and 200 < my < 251:
@@ -52,19 +53,16 @@ while running:
                     board_obj = Board(460, 460, win, mode)
                     scene = "play"
 
-
             elif scene in ("won", "over"):
                 exit_btn = pygame.Rect(50, 200, 85, 55)
                 if exit_btn.collidepoint(mx, my):
                     running = False
-
 
             elif scene == "play" and board_obj:
                 cell = board_obj.click(mx, my)
                 if cell:
                     board_obj.select(*cell)
                 else:
-
                     reset_out = pygame.Rect(50, 500, 100, 55)
                     restart_out = pygame.Rect(160, 500, 100, 55)
                     exit_out = pygame.Rect(270, 500, 100, 55)
@@ -79,6 +77,7 @@ while running:
                         running = False
 
         if ev.type == pygame.KEYDOWN and scene == "play" and board_obj:
+
             if ev.key in (pygame.K_1, pygame.K_KP1):
                 board_obj.sketch(1)
             elif ev.key in (pygame.K_2, pygame.K_KP2):
@@ -97,6 +96,8 @@ while running:
                 board_obj.sketch(8)
             elif ev.key in (pygame.K_9, pygame.K_KP9):
                 board_obj.sketch(9)
+
+
             elif ev.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
                 sel = board_obj.selected_cell
                 if sel:
@@ -110,11 +111,12 @@ while running:
                                 scene = "won"
                             else:
                                 scene = "over"
+
+
             elif ev.key == pygame.K_BACKSPACE:
-                sel = board_obj.selected_cell
-                if sel:
-                    r, c = sel
-                    board_obj.cells[r][c].sketched_value = 0
+                board_obj.clear()
+
+
             elif ev.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
                 r, c = (0, 0) if board_obj.selected_cell is None else board_obj.selected_cell
                 if ev.key == pygame.K_LEFT:
@@ -127,6 +129,7 @@ while running:
                     board_obj.select(min(8, r + 1), c)
 
 
+
     if scene == "start":
         if bg:
             win.blit(bg, (0, 0))
@@ -136,9 +139,9 @@ while running:
         txt_mid(win, "Welcome to Sudoku", pygame.Rect(120, 50, 200, 40), 30)
         txt_mid(win, "Select Game Mode:", pygame.Rect(120, 100, 300, 35), 25)
 
-        for i, (txt, x) in enumerate([("EASY", 60), ("MEDIUM", 160), ("HARD", 250)]):
+        for txt, x in [("EASY", 60), ("MEDIUM", 160), ("HARD", 250)]:
             b = pygame.Rect(x, 210, 65, 35)
-            o = pygame.Rect(x-10, 200, 85, 55)
+            o = pygame.Rect(x - 10, 200, 85, 55)
             pygame.draw.rect(win, ORANGE, b)
             pygame.draw.rect(win, BLACK, o, 5)
             txt_mid(win, txt, o, 15)
