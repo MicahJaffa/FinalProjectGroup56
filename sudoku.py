@@ -1,7 +1,5 @@
 import pygame
 from screen import Board
-import sys
-
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -11,7 +9,6 @@ pygame.init()
 scr_w, scr_h = 460, 600
 win = pygame.display.set_mode((scr_w, scr_h))
 pygame.display.set_caption("Sudoku")
-
 
 try:
     bg = pygame.image.load("sudoku.png").convert_alpha()
@@ -38,31 +35,29 @@ while running:
         if ev.type == pygame.QUIT:
             running = False
 
+
         if ev.type == pygame.MOUSEBUTTONDOWN:
             mx, my = ev.pos
 
             if scene == "start":
-                # Difficulty buttons
+
                 if 43 < mx < 130 and 200 < my < 251:
                     mode = "easy"
                 elif 153 < mx < 231 and 200 < my < 251:
                     mode = "medium"
                 elif 244 < mx < 322 and 200 < my < 251:
                     mode = "hard"
+
                 if mode:
                     board_obj = Board(460, 460, win, mode)
                     scene = "play"
-
-            elif scene in ("won", "over"):
-                exit_btn = pygame.Rect(50, 200, 85, 55)
-                if exit_btn.collidepoint(mx, my):
-                    running = False
 
             elif scene == "play" and board_obj:
                 cell = board_obj.click(mx, my)
                 if cell:
                     board_obj.select(*cell)
                 else:
+
                     reset_out = pygame.Rect(50, 500, 100, 55)
                     restart_out = pygame.Rect(160, 500, 100, 55)
                     exit_out = pygame.Rect(270, 500, 100, 55)
@@ -70,13 +65,30 @@ while running:
                     if reset_out.collidepoint(mx, my):
                         board_obj.reset_to_original()
                     elif restart_out.collidepoint(mx, my):
+
                         scene = "start"
                         mode = ""
                         board_obj = None
                     elif exit_out.collidepoint(mx, my):
                         running = False
 
+            elif scene == "won":
+
+                exit_btn = pygame.Rect(50, 200, 85, 55)
+                if exit_btn.collidepoint(mx, my):
+                    running = False
+
+            elif scene == "over":
+
+                restart_btn = pygame.Rect(50, 200, 85, 55)
+                if restart_btn.collidepoint(mx, my):
+                    scene = "start"
+                    mode = ""
+                    board_obj = None
+
+
         if ev.type == pygame.KEYDOWN and scene == "play" and board_obj:
+
 
             if ev.key in (pygame.K_1, pygame.K_KP1):
                 board_obj.sketch(1)
@@ -104,7 +116,7 @@ while running:
                     r, c = sel
                     val = board_obj.cells[r][c].sketched_value
                     board_obj.cells[r][c].sketched_value = 0
-                    if val and val in range(1, 10):
+                    if val and 1 <= val <= 9:
                         board_obj.place_number(val)
                         if board_obj.is_full():
                             if board_obj.check_board():
@@ -120,13 +132,14 @@ while running:
             elif ev.key in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN):
                 r, c = (0, 0) if board_obj.selected_cell is None else board_obj.selected_cell
                 if ev.key == pygame.K_LEFT:
-                    board_obj.select(r, max(0, c - 1))
+                    c = max(0, c - 1)
                 elif ev.key == pygame.K_RIGHT:
-                    board_obj.select(r, min(8, c + 1))
+                    c = min(8, c + 1)
                 elif ev.key == pygame.K_UP:
-                    board_obj.select(max(0, r - 1), c)
+                    r = max(0, r - 1)
                 elif ev.key == pygame.K_DOWN:
-                    board_obj.select(min(8, r + 1), c)
+                    r = min(8, r + 1)
+                board_obj.select(r, c)
 
 
 
@@ -160,18 +173,31 @@ while running:
             rt_r = rt.get_rect(center=ro.center)
             win.blit(rt, rt_r)
 
-    elif scene in ("won", "over"):
+    elif scene == "won":
         if bg:
             win.blit(bg, (0, 0))
         else:
             win.fill(WHITE)
-        msg = "Game Won!" if scene == "won" else "Game Over :("
-        txt_mid(win, msg, pygame.Rect(120, 50, 200, 40), 30)
+        txt_mid(win, "Game Won!", pygame.Rect(120, 50, 200, 40), 30)
+
 
         eo = pygame.Rect(50, 200, 85, 55)
         pygame.draw.rect(win, ORANGE, pygame.Rect(60, 210, 65, 35))
         pygame.draw.rect(win, BLACK, eo, 5)
         txt_mid(win, "EXIT", eo, 15)
+
+    elif scene == "over":
+        if bg:
+            win.blit(bg, (0, 0))
+        else:
+            win.fill(WHITE)
+        txt_mid(win, "Game Over :(", pygame.Rect(120, 50, 250, 40), 30)
+
+
+        ro = pygame.Rect(50, 200, 85, 55)
+        pygame.draw.rect(win, ORANGE, pygame.Rect(60, 210, 65, 35))
+        pygame.draw.rect(win, BLACK, ro, 5)
+        txt_mid(win, "RESTART", ro, 15)
 
     pygame.display.flip()
 

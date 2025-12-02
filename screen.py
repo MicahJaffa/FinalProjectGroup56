@@ -1,6 +1,7 @@
 import pygame
 from sudoku_generator import SudokuGenerator
 
+
 class Cell:
     def __init__(self, value, row, col, screen, cell_size):
         self.value = value
@@ -12,7 +13,7 @@ class Cell:
         self.size = cell_size
         self.x = col * cell_size
         self.y = row * cell_size
-        # given numbers from the original puzzle
+
         self.is_given = (value != 0)
 
     def set_cell_value(self, value):
@@ -24,29 +25,29 @@ class Cell:
     def draw(self):
         rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
-        # background + border
+
         if self.selected:
-            pygame.draw.rect(self.screen, (255, 255, 200), rect)     # light yellow
-            pygame.draw.rect(self.screen, (255, 0, 0), rect, 2)      # red border
+            pygame.draw.rect(self.screen, (255, 255, 200), rect)      # light yellow
+            pygame.draw.rect(self.screen, (255, 0, 0), rect, 2)       # red border
         else:
-            pygame.draw.rect(self.screen, (255, 255, 255), rect)     # white
-            pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)        # black border
+            pygame.draw.rect(self.screen, (255, 255, 255), rect)      # white
+            pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)         # black border
 
         value_font = pygame.font.SysFont("Arial", 32, bold=True)
         sketch_font = pygame.font.SysFont("Arial", 18)
 
-        # main value
+
         if self.value != 0:
             if self.is_given:
-                color = (0, 0, 0)           # black for given clues
+                color = (0, 0, 0)
             else:
-                color = (20, 60, 200)       # blue for user-entered numbers
+                color = (20, 60, 200)
 
             text = value_font.render(str(self.value), True, color)
             text_rect = text.get_rect(center=(self.x + self.size / 2, self.y + self.size / 2))
             self.screen.blit(text, text_rect)
 
-        # sketched value (only if no main value)
+
         elif self.sketched_value != 0:
             text = sketch_font.render(str(self.sketched_value), True, (150, 150, 150))
             self.screen.blit(text, (self.x + 5, self.y + 5))
@@ -68,15 +69,15 @@ class Board:
 
         generator = SudokuGenerator(9, removed)
         generator.fill_values()
-        # solved board for checking
+
         self.solution = [row[:] for row in generator.solution_board]
-        # make puzzle
+
         generator.remove_cells()
         puzzle = generator.board
-        # original puzzle to reset to
+
         self.original = [row[:] for row in puzzle]
 
-        # consistent cell size
+
         self.cell_size = self.width // 9
 
         self.cells = []
@@ -91,13 +92,19 @@ class Board:
 
     def draw(self):
         cell_size = self.cell_size
-        # grid lines with thicker lines for 3x3 boxes
+
         for i in range(10):
             line_width = 1
             if i % 3 == 0:
                 line_width = 3
-            pygame.draw.line(self.screen, (0, 0, 0), (0, i * cell_size), (self.width, i * cell_size), line_width)
-            pygame.draw.line(self.screen, (0, 0, 0), (i * cell_size, 0), (i * cell_size, self.height), line_width)
+            pygame.draw.line(self.screen, (0, 0, 0),
+                             (0, i * cell_size),
+                             (self.width, i * cell_size),
+                             line_width)
+            pygame.draw.line(self.screen, (0, 0, 0),
+                             (i * cell_size, 0),
+                             (i * cell_size, self.height),
+                             line_width)
 
         for row in self.cells:
             for cell in row:
